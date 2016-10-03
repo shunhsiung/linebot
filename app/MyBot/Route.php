@@ -18,6 +18,7 @@
 
 namespace app\MyBot;
 
+use app\MyBot\User;
 use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
@@ -68,9 +69,14 @@ class Route
                 }
 
                 $replyText = $event->getText();
+				$user = new User($bot->getProfile($event->getUserId()));
+
+				$replyText = sprintf("Hello %s\n%s",$user->displayName,$replyText);
                 $logger->info('Reply text: ' . $replyText);
                 $resp = $bot->replyText($event->getReplyToken(), $replyText);
                 $logger->info($resp->getHTTPStatus() . ': ' . $resp->getRawBody());
+
+				$user->pushMessage($bot, $logger,"直接發送");
             }
 
             $res->write('OK');
