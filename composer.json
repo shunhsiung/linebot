@@ -1,0 +1,15 @@
+{
+    "name": "sshsiung/linebot",
+    "authors": [
+        {
+            "name": "Shunhsiung Shih",
+            "email": "shunhsiung@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^1.21",
+        "vlucas/phpdotenv": "^2.4",
+        "slim/slim": "^3.5",
+        "linecorp/line-bot-sdk": "^1.0"
+    }
+}
