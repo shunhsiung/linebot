@@ -24,6 +24,7 @@ use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
 use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\MessageEvent\LocationMessage;
 use LINE\LINEBot\Event\PostbackEvent;
 use LINE\LINEBot\Exception\InvalidEventRequestException;
 use LINE\LINEBot\Exception\InvalidSignatureException;
@@ -77,6 +78,12 @@ class Route
 						$logger->info($resp->getHTTPStatus() . ': ' . $resp->getRawBody());
 
 
+					} elseif ($event instanceof LocationMessage) {
+						$lat = $event->getLatitude();
+						$lng = $event->getLongitude();
+						$replyToken = $event->getReplyToken();
+						$resp = $bot->replyText($replyToken, sprintf("你的座標為 lat:%s lng:%s",$lat,$lng));
+							
 					} else {
 						$logger->info('Non text message has com');
 						continue;
