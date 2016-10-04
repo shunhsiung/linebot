@@ -24,6 +24,6 @@ class User
 
 		$response = $bot->pushMessage($this->Id,$textMessageBuilder);
 
-		$logger->info(sprintf("%s: %s %s => %s",$response->getHTTPStatus(),$response->getRawBody(),$message,$this->Id));
+		$logger->info(sprintf("%s: %s %s => %s",$response->getHTTPStatus(),$response->getRawBody(),$message,$this->displayName));
 	}
 }

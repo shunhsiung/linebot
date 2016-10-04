@@ -19,10 +19,12 @@
 namespace app\MyBot;
 
 use app\MyBot\User;
+use app\MyBot\Message;
 use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
 use LINE\LINEBot\Event\MessageEvent\TextMessage;
+use LINE\LINEBot\Event\PostbackEvent;
 use LINE\LINEBot\Exception\InvalidEventRequestException;
 use LINE\LINEBot\Exception\InvalidSignatureException;
 use LINE\LINEBot\Exception\UnknownEventTypeException;
@@ -58,25 +60,38 @@ class Route
             }
 
             foreach ($events as $event) {
-                if (!($event instanceof MessageEvent)) {
-                    $logger->info('Non message event has come');
-                    continue;
-                }
+				if ($event instanceof MessageEvent) {
+					if ($event instanceof TextMessage) {
+						$client_user = new User($bot->getProfile($event->getUserId()));
 
-                if (!($event instanceof TextMessage)) {
-                    $logger->info('Non text message has come');
-                    continue;
-                }
+						$client_message = new Message($event->getText(), $client_user);
 
-                $replyText = $event->getText();
-				$user = new User($bot->getProfile($event->getUserId()));
+						$replyText = $client_message->get_reply_message();
+						if (is_object($replyText)) {
+							$resp = $bot->replyMessage($event->getReplyToken(), $replyText);
+							$logger->info('Object : ' . serialize($replyText));
+						} else {
+							$logger->info('Reply text: ' . $replyText);
+							$resp = $bot->replyText($event->getReplyToken(), $replyText);
+						}
+						$logger->info($resp->getHTTPStatus() . ': ' . $resp->getRawBody());
 
-				$replyText = sprintf("Hello %s\n%s",$user->displayName,$replyText);
-                $logger->info('Reply text: ' . $replyText);
-                $resp = $bot->replyText($event->getReplyToken(), $replyText);
-                $logger->info($resp->getHTTPStatus() . ': ' . $resp->getRawBody());
 
-				$user->pushMessage($bot, $logger,"直接發送");
+					} else {
+						$logger->info('Non text message has com');
+						continue;
+					}
+				} elseif ($event instanceof PostbackEvent) {
+						$data = $event->getPostbackData();	
+						$userId = $event->getUserId();	
+						$replyToken = $event->getReplyToken();
+						$resp = $bot->replyText($replyToken, sprintf("你選擇答案是 %s",$data));
+				} else {
+					$logger->info(serialize($event));
+					$logger->info('Unknown event type has come');
+					continue;
+				}
+
             }
 
             $res->write('OK');
