@@ -22,7 +22,6 @@ class Message
 			$msg = $this->gen_image_message($ourl,$purl);	
 
 		} elseif (preg_match("/@location/",$this->message)) {
-
 			$msg = $this->gen_location_message ($title, $address, $lat , $lng );
 		} elseif (preg_match("/^@yes$/",$this->message)) {
 			

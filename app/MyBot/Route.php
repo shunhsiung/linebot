@@ -20,6 +20,7 @@ namespace app\MyBot;
 
 use app\MyBot\User;
 use app\MyBot\Message;
+use plugins\Oursweb\Oursweb;
 use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
@@ -82,7 +83,9 @@ class Route
 						$lat = $event->getLatitude();
 						$lng = $event->getLongitude();
 						$replyToken = $event->getReplyToken();
-						$resp = $bot->replyText($replyToken, sprintf("你的座標為 lat:%s lng:%s",$lat,$lng));
+                        $oursweb = new Oursweb();
+                        $church_list_str = $oursweb->get_church_list($lat,$lng);
+						$resp = $bot->replyText($replyToken, sprintf("目前附近教會有\n%s",$church_list_str));
 							
 					} else {
 						$logger->info('Non text message has com');
