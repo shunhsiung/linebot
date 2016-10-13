@@ -21,6 +21,7 @@ namespace app\MyBot;
 use app\MyBot\User;
 use app\MyBot\Message;
 use plugins\Oursweb\Oursweb;
+use plugins\YouBike\GeoYouBike;
 use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
@@ -83,9 +84,23 @@ class Route
 						$lat = $event->getLatitude();
 						$lng = $event->getLongitude();
 						$replyToken = $event->getReplyToken();
-                        $oursweb = new Oursweb();
-                        $church_list_str = $oursweb->get_church_list($lat,$lng);
-						$resp = $bot->replyText($replyToken, sprintf("目前附近教會有\n%s",$church_list_str));
+						
+						$rootDir = dirname(dirname(__DIR__));
+						$fp = sprintf("%s/plugins/YouBike/search_youbike.php",$rootDir);
+						$cmd = sprintf("php %s %s %s %d",$fp,$lng,$lat,700);
+						exec($cmd,$output,$return_var);
+						$msg = "";
+						foreach ($output as $o_a) {
+							$msg .= sprintf("%s\n",$o_a);
+						}
+/*
+						$geo = new GeoYouBike();
+						$msg = $geo->get_lnglat($lng,$lat);	
+*/
+						$resp = $bot->replyText($replyToken, sprintf("目前附近YouBike點有\n%s",$msg));
+//                        $oursweb = new Oursweb();
+//                        $church_list_str = $oursweb->get_church_list($lat,$lng);
+//						$resp = $bot->replyText($replyToken, sprintf("目前附近教會有\n%s",$church_list_str));
 							
 					} else {
 						$logger->info('Non text message has com');
